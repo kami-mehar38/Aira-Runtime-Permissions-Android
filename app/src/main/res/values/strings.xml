@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AiraRuntimePermissions</string>
+    <string name="camera">Camera</string>
+    <string name="storage">Storage</string>
+    <string name="contacts">Contacts</string>
+    <string name="request_all">Request All</string>
+</resources>
