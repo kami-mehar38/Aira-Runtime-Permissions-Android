@@ -238,6 +238,7 @@ public class Aira {
         }
     }
 
+
     public interface OnPermissionResultListener {
         void onPermissionGranted();
 
