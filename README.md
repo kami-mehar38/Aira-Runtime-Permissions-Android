@@ -6,6 +6,14 @@ What differs this library
 * Easy to implement
 * Callbacks to check for the permission status
 
+## Demo
+
+![screenshot_1520791891](https://user-images.githubusercontent.com/19648192/37256829-f663a880-2581-11e8-9d55-fa69c37a2054.png)
+
+![screenshot_1520791907](https://user-images.githubusercontent.com/19648192/37256838-1e02bb4c-2582-11e8-8a6f-6dfde1e078b0.png)
+
+![screenshot_1520791926](https://user-images.githubusercontent.com/19648192/37256850-316125ca-2582-11e8-8e17-17cbc148794e.png)
+
 ### Installing with Gradle
 
 Step 1. Add it in your root build.gradle at the end of repositories:
