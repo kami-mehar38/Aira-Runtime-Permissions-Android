@@ -88,7 +88,7 @@ See also the list of [contributors](https://github.com/your/project/contributors
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/kami-mehar38/Aira-Runtime-Permissions-Android/blob/master/LICENSE) file for details
 
 ## Acknowledgments
 * Inspiration www.androidhive.info
