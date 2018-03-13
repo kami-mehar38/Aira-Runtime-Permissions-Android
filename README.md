@@ -57,6 +57,8 @@ Step 2. Add the dependency
 
 Simply go for the following method to check if the permissions is granted or not, in this method has two overridden methods that are essential to listen for the permission callbacks.
 
+### Requesting multiple permissions
+
     Aira.requestPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
                     PERMISSION_CONSTANT_ALL, "Need Permissions", "This app needs multiple permissions to work properly, grant the permission if you want to get all the features.",
                     new Aira.OnPermissionResultListener() {
@@ -71,8 +73,23 @@ Simply go for the following method to check if the permissions is granted or not
                         }
                     });
 
+
+### Requesting single permission
+
+    Aira.requestPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA},
+                    PERMISSION_CONSTANT_CAMERA, "Camera Permission", "This app needs camera permission to work properly, grant the permission if you want to get all the features.",
+                    new Aira.OnPermissionResultListener() {
+                        @Override
+                        public void onPermissionGranted(List<String> grantedPermissions) {
                             
-                            
+                        }
+
+                        @Override
+                        public void onPermissionFailed(List<String> failedPermissions) {
+                        
+                        }
+                    });
+		    
 Send the activity result to the Aira library to check for the permission result, in your onActivityResult and onRequestPermissionsResult method
 
     @Override
