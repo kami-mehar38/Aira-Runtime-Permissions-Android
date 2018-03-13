@@ -1,5 +1,6 @@
 package com.krprojects.aira;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,14 +15,16 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This project is created by Kamran Ramzan on 11-Mar-18.
  */
 
-public class Aira {
+@SuppressLint("StaticFieldLeak")
 
-    // shared preferences to check if the permissions is already granted or not
-    private static SharedPreferences permissionStatus;
+public class Aira {
 
     // instance of the context
     private static Context context;
@@ -35,9 +38,11 @@ public class Aira {
     // String array of the required permissions
     private static String[] permissionsRequired;
 
+    private static List<String> grantedPermissionsList = new ArrayList<>();
+    private static List<String> failedPermissionsList = new ArrayList<>();
+
     // int  value to uniquely identify the result in onActivityResult() method
     private static int permissionConstant;
-    private static boolean IS_GRANTED;
     private static boolean SHOULD_SEND_TO_SETTINGS;
     private static boolean SHOULD_SHOW_RATIONALE;
     private static boolean ASK_FOR_PERMISSION = false;
@@ -58,40 +63,47 @@ public class Aira {
     public static void requestPermission(Context context, @NonNull String[] permissionsRequired, int permissionConstant, @NonNull String title, @NonNull String message, @NonNull OnPermissionResultListener onPermissionResultListener) {
 
         Aira.context = context;
-        permissionStatus = context.getSharedPreferences("com.krprojects.aira", Context.MODE_PRIVATE);
+        SharedPreferences permissionStatus = context.getSharedPreferences("com.krprojects.aira", Context.MODE_PRIVATE);
         appCompatActivity = (Activity) context;
         Aira.onPermissionResultListener = onPermissionResultListener;
 
         Aira.permissionsRequired = permissionsRequired;
         Aira.permissionConstant = permissionConstant;
 
+        grantedPermissionsList.clear();
+        failedPermissionsList.clear();
+
 
         for (String permissionRequired :
                 Aira.permissionsRequired) {
-            IS_GRANTED = false;
-            SHOULD_SEND_TO_SETTINGS = false;
-            SHOULD_SHOW_RATIONALE = false;
-            ASK_FOR_PERMISSION = false;
+
             if (ActivityCompat.checkSelfPermission(context, permissionRequired) != PackageManager.PERMISSION_GRANTED) {
+
+                SHOULD_SEND_TO_SETTINGS = false;
+                SHOULD_SHOW_RATIONALE = false;
+                ASK_FOR_PERMISSION = false;
+
+                failedPermissionsList.add(permissionRequired);
+
                 if (ActivityCompat.shouldShowRequestPermissionRationale(appCompatActivity, permissionRequired)) {
                     //Show Information about why you need the permission
                     SHOULD_SHOW_RATIONALE = true;
                     SHOULD_SEND_TO_SETTINGS = false;
-                    IS_GRANTED = false;
                     ASK_FOR_PERMISSION = false;
+
                 } else if (permissionStatus.getBoolean(permissionRequired, false)) {
                     //Previously Permission Request was cancelled with 'Dont Ask Again',
                     // Redirect to Settings after showing Information about why you need the permission
                     SHOULD_SEND_TO_SETTINGS = true;
                     SHOULD_SHOW_RATIONALE = false;
-                    IS_GRANTED = false;
                     ASK_FOR_PERMISSION = false;
+
                 } else {
                     //just request the permission
                     ASK_FOR_PERMISSION = true;
                     SHOULD_SEND_TO_SETTINGS = false;
                     SHOULD_SHOW_RATIONALE = false;
-                    IS_GRANTED = false;
+
                 }
 
                 SharedPreferences.Editor editor = permissionStatus.edit();
@@ -101,25 +113,34 @@ public class Aira {
 
             } else {
                 //You already have the permission, just go ahead.
-                IS_GRANTED = true;
+                grantedPermissionsList.add(permissionRequired);
+                Log.i("TAG", "requestPermission: " + grantedPermissionsList.toString());
             }
-            if (!IS_GRANTED) {
+            /*if (!IS_GRANTED) {
                 Log.i("TAG", "requestPermission: IS_GRANTED " + IS_GRANTED);
                 break;
+            }*/
+
+        }
+
+        Log.i("TAG", "ASK_FOR_PERMISSION: " + ASK_FOR_PERMISSION);
+        Log.i("TAG", "SHOULD_SHOW_RATIONALE: " + SHOULD_SHOW_RATIONALE);
+        Log.i("TAG", "SHOULD_SEND_TO_SETTINGS: " + SHOULD_SEND_TO_SETTINGS);
+
+        if (failedPermissionsList.size() > 0) {
+            if (ASK_FOR_PERMISSION) {
+                Log.i("TAG", "ASK_FOR_PERMISSION: " + failedPermissionsList.toString());
+                ActivityCompat.requestPermissions(appCompatActivity, Aira.permissionsRequired, Aira.permissionConstant);
+            } else {
+                if (SHOULD_SHOW_RATIONALE) {
+                    Log.i("TAG", "shouldShowRequestPermissionRationale: " + failedPermissionsList.toString());
+                    showRationaleMessage(context, title, message);
+                } else if (SHOULD_SEND_TO_SETTINGS) {
+                    Log.i("TAG", "SHOULD_SEND_TO_SETTINGS: " + failedPermissionsList.toString());
+                    sendToSettings(context, title, message);
+                }
             }
-
-        }
-
-        if (IS_GRANTED)
-            Aira.onPermissionResultListener.onPermissionGranted();
-        else if (ASK_FOR_PERMISSION)
-            ActivityCompat.requestPermissions(appCompatActivity, Aira.permissionsRequired, Aira.permissionConstant);
-        else {
-            if (SHOULD_SHOW_RATIONALE)
-                showRationaleMessage(context, title, message);
-            else if (SHOULD_SEND_TO_SETTINGS)
-                sendToSettings(context, title, message);
-        }
+        } else Aira.onPermissionResultListener.onPermissionGranted(grantedPermissionsList);
 
     }
 
@@ -142,7 +163,7 @@ public class Aira {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-                Aira.onPermissionResultListener.onPermissionFailed();
+                Aira.onPermissionResultListener.onPermissionFailed(failedPermissionsList);
             }
         });
         builder.show();
@@ -163,7 +184,7 @@ public class Aira {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-                Aira.onPermissionResultListener.onPermissionFailed();
+                Aira.onPermissionResultListener.onPermissionFailed(failedPermissionsList);
             }
         });
         builder.show();
@@ -171,66 +192,47 @@ public class Aira {
 
     public static void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Aira.permissionConstant) {
+
+            grantedPermissionsList.clear();
+            failedPermissionsList.clear();
             //check if all permissions are granted
-            boolean allGranted = false;
-            for (int grantResult : grantResults) {
-                if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                    allGranted = true;
+            for (String grantPermission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, grantPermission) == PackageManager.PERMISSION_GRANTED) {
+                    grantedPermissionsList.add(grantPermission);
                 } else {
-                    allGranted = false;
-                    break;
+                    failedPermissionsList.add(grantPermission);
                 }
             }
 
-            if (allGranted) {
-                Aira.onPermissionResultListener.onPermissionGranted();
-                Log.i("TAG", "onRequestPermissionsResult: OKKK");
-            } else if (ActivityCompat.shouldShowRequestPermissionRationale(appCompatActivity, Aira.permissionsRequired[0])) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Need Permissions");
-                builder.setMessage("This app needs multiple permissions to work properly as designed.");
-                builder.setPositiveButton("Grant", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        ActivityCompat.requestPermissions(appCompatActivity, Aira.permissionsRequired, Aira.permissionConstant);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        Aira.onPermissionResultListener.onPermissionFailed();
-                    }
-                });
-                builder.show();
-            } else {
-                Aira.onPermissionResultListener.onPermissionFailed();
-            }
+            if (failedPermissionsList.size() > 0)
+                Aira.onPermissionResultListener.onPermissionFailed(failedPermissionsList);
+            else Aira.onPermissionResultListener.onPermissionGranted(grantedPermissionsList);
         }
     }
 
     public static void onActivityResult(int requestCode) {
+        grantedPermissionsList.clear();
+        failedPermissionsList.clear();
         if (requestCode == permissionConstant) {
             for (String requiredPermission :
                     permissionsRequired) {
-                //Got Permission
-                SHOULD_SHOW_RATIONALE = ActivityCompat.checkSelfPermission(appCompatActivity, requiredPermission) == PackageManager.PERMISSION_GRANTED;
-                Log.i("TAG", "onActivityResult: " + SHOULD_SHOW_RATIONALE);
-                if (!SHOULD_SHOW_RATIONALE)
-                    break;
+                if (ActivityCompat.checkSelfPermission(context, requiredPermission) == PackageManager.PERMISSION_GRANTED) {
+                    grantedPermissionsList.add(requiredPermission);
+                } else {
+                    failedPermissionsList.add(requiredPermission);
+                }
             }
 
-            if (SHOULD_SHOW_RATIONALE)
-                Aira.onPermissionResultListener.onPermissionGranted();
-            else Aira.onPermissionResultListener.onPermissionFailed();
+            if (failedPermissionsList.size() > 0)
+                Aira.onPermissionResultListener.onPermissionFailed(failedPermissionsList);
+            else Aira.onPermissionResultListener.onPermissionGranted(grantedPermissionsList);
         }
     }
 
 
     public interface OnPermissionResultListener {
-        void onPermissionGranted();
+        void onPermissionGranted(List<String> grantedPermissions);
 
-        void onPermissionFailed();
+        void onPermissionFailed(List<String> failedPermissions);
     }
 }
