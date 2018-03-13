@@ -12,11 +12,7 @@ Now callbacks have the list of permissions that are granted or failed
 
 ## Demo
 
-![screenshot_1520791891](https://user-images.githubusercontent.com/19648192/37256829-f663a880-2581-11e8-9d55-fa69c37a2054.png)
-
-![screenshot_1520791907](https://user-images.githubusercontent.com/19648192/37256838-1e02bb4c-2582-11e8-8a6f-6dfde1e078b0.png)
-
-![screenshot_1520791926](https://user-images.githubusercontent.com/19648192/37256850-316125ca-2582-11e8-8e17-17cbc148794e.png)
+![ezgif com-resize 1](https://user-images.githubusercontent.com/19648192/37361937-d5c53d24-2715-11e8-9d48-c739404e5f45.gif)
 
 ### Installing with Gradle
 
