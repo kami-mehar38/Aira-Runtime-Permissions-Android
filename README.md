@@ -28,7 +28,7 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        compile 'com.github.kami-mehar38:Aira-Runtime-Permissions-Android:1.1.0'
+	        implementation 'com.github.kami-mehar38:Aira-Runtime-Permissions-Android:1.1.2'
 	}
 
 ### Installing with Maven
@@ -47,7 +47,7 @@ Step 2. Add the dependency
 	<dependency>
 	    <groupId>com.github.kami-mehar38</groupId>
 	    <artifactId>Aira-Runtime-Permissions-Android</artifactId>
-	    <version>1.1.0</version>
+	    <version>1.1.2</version>
 	</dependency>
 
 ## Example
