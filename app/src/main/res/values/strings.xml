@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AiraRuntimePermissions</string>
+    <string name="app_name">Aira</string>
     <string name="camera">Camera</string>
     <string name="storage">Storage</string>
     <string name="contacts">Contacts</string>

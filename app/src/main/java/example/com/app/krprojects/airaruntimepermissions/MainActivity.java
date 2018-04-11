@@ -6,9 +6,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.krprojects.aira.Aira;
 
@@ -62,19 +62,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void checkMultiplePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int PERMISSION_CONSTANT_ALL = 1;
-            Aira.requestPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
-                    PERMISSION_CONSTANT_ALL, "Need Permissions", "This app needs multiple permissions to work properly, grant the permission if you want to get all the features.",
-                    new Aira.OnPermissionResultListener() {
-                        @Override
-                        public void onPermissionGranted(List<String> grantedPermissions) {
-                            Log.i("TAG", "onPermissionGranted: " + grantedPermissions.toString());
-                        }
+            if (!Aira.checkPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS}))
+                Aira.requestPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
+                        PERMISSION_CONSTANT_ALL, "Need Permissions", "This app needs multiple permissions to work properly, grant the permission if you want to get all the features.",
+                        new Aira.OnPermissionResultListener() {
+                            @Override
+                            public void onPermissionGranted(List<String> grantedPermissions) {
+                                showToast("All permissions granted");
+                            }
 
-                        @Override
-                        public void onPermissionFailed(List<String> failedPermissions) {
-                            Log.i("TAG", "onPermissionFailed: " + failedPermissions.toString());
-                        }
-                    });
+                            @Override
+                            public void onPermissionFailed(List<String> failedPermissions) {
+                                String message = null;
+                                for (String failedPermission :
+                                        failedPermissions) {
+                                    message = failedPermission;
+                                    message = message + " and ";
+                                }
+                                message = message + " failed";
+                                showToast(message);
+                            }
+                        });
 
         }
     }
@@ -87,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new Aira.OnPermissionResultListener() {
                         @Override
                         public void onPermissionGranted(List<String> grantedPermissions) {
-                            Log.i("TAG", "onPermissionGranted: " + grantedPermissions.toString());
+                            showToast(grantedPermissions.get(0) + " Granted");
                         }
 
                         @Override
                         public void onPermissionFailed(List<String> failedPermissions) {
-                            Log.i("TAG", "onPermissionFailed: " + failedPermissions.toString());
+                            showToast(failedPermissions.get(0) + " Failed");
                         }
                     });
 
@@ -107,12 +115,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new Aira.OnPermissionResultListener() {
                         @Override
                         public void onPermissionGranted(List<String> grantedPermissions) {
-                            Log.i("TAG", "onPermissionGranted: " + grantedPermissions.toString());
+                            showToast(grantedPermissions.get(0) + " Granted");
                         }
 
                         @Override
                         public void onPermissionFailed(List<String> failedPermissions) {
-                            Log.i("TAG", "onPermissionFailed: " + failedPermissions.toString());
+                            showToast(failedPermissions.get(0) + " Failed");
                         }
                     });
 
@@ -127,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new Aira.OnPermissionResultListener() {
                         @Override
                         public void onPermissionGranted(List<String> grantedPermissions) {
-                            Log.i("TAG", "onPermissionGranted: " + grantedPermissions.toString());
+                            showToast(grantedPermissions.get(0) + " Granted");
                         }
 
                         @Override
                         public void onPermissionFailed(List<String> failedPermissions) {
-                            Log.i("TAG", "onPermissionFailed: " + failedPermissions.toString());
+                            showToast(failedPermissions.get(0) + " Failed");
                         }
                     });
 
@@ -149,8 +157,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Aira.onRequestPermissionResult(requestCode, permissions, grantResults);
+        Aira.onRequestPermissionResult(requestCode, permissions);
     }
 
+    private void showToast(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
 
 }
