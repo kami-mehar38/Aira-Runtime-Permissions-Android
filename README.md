@@ -3,12 +3,13 @@ Helping the android developers to quickly go for the runtime permissions without
 What differs this library
 
 ## Whats new
-Now callbacks have the list of permissions that are granted or failed
+A separate method to check if the permission is granted or not
 
 * Short Code
 * Permission within one method
 * Easy to implement
 * Callbacks to check for the permission status
+* Method to check for the permission grant status
 
 ## Demo
 
@@ -52,6 +53,14 @@ Step 2. Add the dependency
 ## Example
 
 Simply go for the following method to check if the permissions is granted or not, in this method has two overridden methods that are essential to listen for the permission callbacks.
+
+### Checking for the permission
+
+	if (Aira.checkPermission(MainActivity.this, new String[]{Manifest.permission.CAMERA})) {
+		// permission is already granted
+	} else {
+		// permission is not granted
+	}
 
 ### Requesting multiple permissions
 
